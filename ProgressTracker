@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HQCDP Master Course Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .dashboard-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #2c3e50;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            font-size: 2em;
+            font-weight: 600;
+        }
+        
+        .date-time {
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 300px;
+            padding: 10px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+        
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 8px 16px;
+            border: 1px solid #dee2e6;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+        
+        .filter-btn:hover {
+            background: #f8f9fa;
+        }
+        
+        .filter-btn.active {
+            background: #2c3e50;
+            color: white;
+            border-color: #2c3e50;
+        }
+        
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #3498db;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.85em;
+            margin-top: 5px;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            margin-bottom: 30px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: #2c3e50;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 500;
+            font-size: 0.9em;
+            position: sticky;
+            top: 0;
+            cursor: pointer;
+        }
+        
+        th:hover {
+            background: #34495e;
+        }
+        
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #dee2e6;
+            font-size: 0.9em;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .course-id {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .instructor-name {
+            color: #495057;
+        }
+        
+        .stage-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: 500;
+            color: white;
+        }
+        
+        .stage-0 { background: #6c757d; }
+        .stage-1 { background: #007bff; }
+        .stage-2-1 { background: #17a2b8; }
+        .stage-2-2 { background: #20c997; }
+        .stage-2-3 { background: #28a745; }
+        .stage-3-1 { background: #ffc107; color: #212529; }
+        .stage-3-2 { background: #fd7e14; }
+        .stage-3-3 { background: #dc3545; }
+        .stage-4 { background: #6610f2; }
+        .stage-5 { background: #e83e8c; }
+        .stage-6 { background: #563d7c; }
+        .stage-7 { background: #155724; }
+        .stage-h { background: #721c24; }
+        .stage-r { background: #004085; }
+        
+        .cte-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 0.8em;
+            font-weight: 600;
+            background: #28a745;
+            color: white;
+        }
+        
+        .non-cte {
+            background: #6c757d;
+        }
+        
+        .term-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 0.8em;
+            background: #e9ecef;
+            color: #495057;
+        }
+        
+        .term-fall { background: #fff3cd; color: #856404; }
+        .term-spring { background: #cfe2ff; color: #084298; }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            transition: width 0.3s ease;
+        }
+        
+        .action-owner {
+            font-weight: 500;
+        }
+        
+        .owner-you { color: #28a745; }
+        .owner-instructor { color: #dc3545; }
+        .owner-shared { color: #ffc107; }
+        .owner-tbd { color: #6c757d; }
+        
+        .summary-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+        
+        .summary-title {
+            font-size: 1.3em;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .summary-text {
+            line-height: 1.6;
+            color: #495057;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .sort-arrow {
+            font-size: 0.8em;
+            margin-left: 5px;
+            color: rgba(255,255,255,0.7);
+        }
+        
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+            }
+            
+            .search-box {
+                min-width: 100%;
+            }
+            
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="header">
+            <h1>HQCDP Master Course Dashboard</h1>
+            <div class="date-time" id="currentDateTime"></div>
+        </div>
+        
+        <div class="controls">
+            <input type="text" class="search-box" id="searchBox" placeholder="Search by course ID, name, instructor, or department...">
+            <div class="filter-group">
+                <button class="filter-btn active" onclick="filterByType('all')">All Courses (36)</button>
+                <button class="filter-btn" onclick="filterByType('cte')">CTE Only</button>
+                <button class="filter-btn" onclick="filterByType('non-cte')">Non-CTE</button>
+                <button class="filter-btn" onclick="filterByType('active')">Active Build</button>
+                <button class="filter-btn" onclick="filterByType('hold')">On Hold</button>
+                <button class="filter-btn" onclick="filterByType('fall')">Fall 2025</button>
+                <button class="filter-btn" onclick="filterByType('spring')">Spring 2026</button>
+            </div>
+        </div>
+        
+        <div class="stats-row">
+            <div class="stat-card" onclick="filterByType('all')">
+                <div class="stat-number">36</div>
+                <div class="stat-label">Total Courses</div>
+            </div>
+            <div class="stat-card" onclick="filterByType('cte')">
+                <div class="stat-number">19</div>
+                <div class="stat-label">CTE Courses</div>
+            </div>
+            <div class="stat-card" onclick="filterByType('active')">
+                <div class="stat-number">8</div>
+                <div class="stat-label">Active Build</div>
+            </div>
+            <div class="stat-card" onclick="filterByStage(2)">
+                <div class="stat-number">7</div>
+                <div class="stat-label">In Foundation</div>
+            </div>
+            <div class="stat-card" onclick="filterByType('hold')">
+                <div class="stat-number">1</div>
+                <div class="stat-label">On Hold</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">3</div>
+                <div class="stat-label">Recertification</div>
+            </div>
+        </div>
+        
+        <div class="table-container">
+            <table id="courseTable">
+                <thead>
+                    <tr>
+                        <th onclick="sortTable(0)">Course ID <span class="sort-arrow">↕</span></th>
+                        <th onclick="sortTable(1)">Course Name <span class="sort-arrow">↕</span></th>
+                        <th onclick="sortTable(2)">Department <span class="sort-arrow">↕</span></th>
+                        <th onclick="sortTable(3)">CTE <span class="sort-arrow">↕</span></th>
+                        <th onclick="sortTable(4)">Instructor <span class="sort-arrow">↕</span></th>
+                        <th onclick="sortTable(5)">Stage <span class="sort-arrow">↕</span></th>
+                        <th onclick="sortTable(6)">Progress <span class="sort-arrow">↕</span></th>
+                        <th onclick="sortTable(7)">Term <span class="sort-arrow">↕</span></th>
+                        <th onclick="sortTable(8)">Next Owner <span class="sort-arrow">↕</span></th>
+                    </tr>
+                </thead>
+                <tbody id="courseTableBody">
+                    <!-- Priority Active Courses -->
+                    <tr data-cte="no" data-stage="h" data-term="academic" data-status="hold">
+                        <td class="course-id">BUS-115</td>
+                        <td>Business Law</td>
+                        <td>Business</td>
+                        <td><span class="cte-badge">CTE</span></td>
+                        <td class="instructor-name">Dr. Lewis</td>
+                        <td><span class="stage-badge stage-h">Hold (was 1)</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 15%"></div></div></td>
+                        <td><span class="term-badge">Academic Year</span></td>
+                        <td><span class="action-owner owner-instructor">Instructor</span></td>
+                    </tr>
+                    <tr data-cte="yes" data-stage="2.2" data-term="academic" data-status="active">
+                        <td class="course-id">CSC-113</td>
+                        <td>Computer Programming</td>
+                        <td>Computer Tech</td>
+                        <td><span class="cte-badge">CTE</span></td>
+                        <td class="instructor-name">Andrew Norris</td>
+                        <td><span class="stage-badge stage-2-2">Stage 2.2</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 30%"></div></div></td>
+                        <td><span class="term-badge">Academic Year</span></td>
+                        <td><span class="action-owner owner-you">You</span></td>
+                    </tr>
+                    <tr data-cte="yes" data-stage="2.2" data-term="academic" data-status="active">
+                        <td class="course-id">CTS-285</td>
+                        <td>Systems Analysis & Design</td>
+                        <td>Computer Tech</td>
+                        <td><span class="cte-badge">CTE</span></td>
+                        <td class="instructor-name">Andrew Norris</td>
+                        <td><span class="stage-badge stage-2-2">Stage 2.2</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 30%"></div></div></td>
+                        <td><span class="term-badge">Academic Year</span></td>
+                        <td><span class="action-owner owner-you">You</span></td>
+                    </tr>
+                    <tr data-cte="yes" data-stage="2.2" data-term="academic" data-status="active">
+                        <td class="course-id">CTS-289</td>
+                        <td>System Support Project</td>
+                        <td>Computer Tech</td>
+                        <td><span class="cte-badge">CTE</span></td>
+                        <td class="instructor-name">Andrew Norris</td>
+                        <td><span class="stage-badge stage-2-2">Stage 2.2</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 30%"></div></div></td>
+                        <td><span class="term-badge">Academic Year</span></td>
+                        <td><span class="action-owner owner-you">You</span></td>
+                    </tr>
+                    <tr data-cte="yes" data-stage="2.1" data-term="fall" data-status="active">
+                        <td class="course-id">GRD-132</td>
+                        <td>Illustration II</td>
+                        <td>Computer Tech</td>
+                        <td><span class="cte-badge">CTE</span></td>
+                        <td class="instructor-name">Sara Smith</td>
+                        <td><span class="stage-badge stage-2-1">Stage 2.1</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 20%"></div></div></td>
+                        <td><span class="term-badge term-fall">Fall 2025</span></td>
+                        <td><span class="action-owner owner-you">You</span></td>
+                    </tr>
+                    <tr data-cte="yes" data-stage="2.2" data-term="fall" data-status="active">
+                        <td class="course-id">GRD-154</td>
+                        <td>Vector Imaging Software</td>
+                        <td>Computer Tech</td>
+                        <td><span class="cte-badge">CTE</span></td>
+                        <td class="instructor-name">Jennifer Fisher</td>
+                        <td><span class="stage-badge stage-2-2">Stage 2.2</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 30%"></div></div></td>
+                        <td><span class="term-badge term-fall">Fall 2025</span></td>
+                        <td><span class="action-owner owner-you">You</span></td>
+                    </tr>
+                    <tr data-cte="no" data-stage="2.3" data-term="fall" data-status="active">
+                        <td class="course-id">HIS-131</td>
+                        <td>U.S. History I</td>
+                        <td>Arts & Humanities</td>
+                        <td><span class="cte-badge non-cte">Non-CTE</span></td>
+                        <td class="instructor-name">Jessie Kiker</td>
+                        <td><span class="stage-badge stage-2-3">Stage 2.3</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 40%"></div></div></td>
+                        <td><span class="term-badge term-fall">Fall 2025</span></td>
+                        <td><span class="action-owner owner-you">You</span></td>
+                    </tr>
+                    <tr data-cte="yes" data-stage="2.1" data-term="academic" data-status="active">
+                        <td class="course-id">MAT-110</td>
+                        <td>Math Measurement & Literacy</td>
+                        <td>Math & Sciences</td>
+                        <td><span class="cte-badge">CTE</span></td>
+                        <td class="instructor-name">Dr. Mathis/Dr. McCarter</td>
+                        <td><span class="stage-badge stage-2-1">Stage 2.1</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 20%"></div></div></td>
+                        <td><span class="term-badge">Academic Year</span></td>
+                        <td><span class="action-owner owner-you">You</span></td>
+                    </tr>
+                    
+                    <!-- Other Courses -->
+                    <tr data-cte="no" data-stage="0" data-term="academic" data-status="not-started">
+                        <td class="course-id">ASL-110</td>
+                        <td>American Sign Language</td>
+                        <td>Arts & Humanities</td>
+                        <td><span class="cte-badge non-cte">Non-CTE</span></td>
+                        <td class="instructor-name">Christina Royal</td>
+                        <td><span class="stage-badge stage-0">Stage 0</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div></td>
+                        <td><span class="term-badge">Academic Year</span></td>
+                        <td><span class="action-owner owner-you">You</span></td>
+                    </tr>
+                    <tr data-cte="yes" data-stage="0" data-term="academic" data-status="not-started">
+                        <td class="course-id">BPR-130</td>
+                        <td>Blueprint Reading</td>
+                        <td>Engineering & Applied Tech</td>
+                        <td><span class="cte-badge">CTE</span></td>
+                        <td class="instructor-name">Keith Carter</td>
+                        <td><span class="stage-badge stage-0">Stage 0</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div></td>
+                        <td><span class="term-badge">Academic Year</span></td>
+                        <td><span class="action-owner owner-you">You</span></td>
+                    </tr>
+                    <tr data-cte="yes" data-stage="r" data-term="recert" data-status="recert">
+                        <td class="course-id">BUS-110</td>
+                        <td>Introduction to Business</td>
+                        <td>Business</td>
+                        <td><span class="cte-badge">CTE</span></td>
+                        <td class="instructor-name">TBD</td>
+                        <td><span class="stage-badge stage-r">Recertification</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div></td>
+                        <td><span class="term-badge">Recertify</span></td>
+                        <td><span class="action-owner owner-tbd">TBD</span></td>
+                    </tr>
+                    <tr data-cte="yes" data-stage="r" data-term="recert" data-status="recert">
+                        <td class="course-id">BUS-253</td>
+                        <td>Leadership & Management</td>
+                        <td>Business</td>
+                        <td><span class="cte-badge">CTE</span></td>
+                        <td class="instructor-name">TBD</td>
+                        <td><span class="stage-badge stage-r">Recertification</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div></td>
+                        <td><span class="term-badge">Recertify</span></td>
+                        <td><span class="action-owner owner-tbd">TBD</span></td>
+                    </tr>
+                    <tr data-cte="yes" data-stage="0" data-term="academic" data-status="not-started">
+                        <td class="course-id">FSE-210</td>
+                        <td>Fire Science</td>
+                        <td>Nursing/Health</td>
+                        <td><span class="cte-badge">CTE</span></td>
+                        <td class="instructor-name">Trey Herring</td>
+                        <td><span class="stage-badge stage-0">Stage 0</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div></td>
+                        <td><span class="term-badge">Academic Year</span></td>
+                        <td><span class="action-owner owner-you">You</span></td>
+                    </tr>
+                    <tr data-cte="yes" data-stage="0" data-term="academic" data-status="not-started">
+                        <td class="course-id">FSE-212</td>
+                        <td>Fire Science II</td>
+                        <td>Nursing/Health</td>
+                        <td><span class="cte-badge">CTE</span></td>
+                        <td class="instructor-name">Trey Herring</td>
+                        <td><span class="stage-badge stage-0">Stage 0</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div></td>
+                        <td><span class="term-badge">Academic Year</span></td>
+                        <td><span class="action-owner owner-you">You</span></td>
+                    </tr>
+                    <tr data-cte="yes" data-stage="0" data-term="academic" data-status="not-started">
+                        <td class="course-id">GRD-242</td>
+                        <td>Graphic Design III</td>
+                        <td>Computer Tech</td>
+                        <td><span class="cte-badge">CTE</span></td>
+                        <td class="instructor-name">Jennifer Fisher</td>
+                        <td><span class="stage-badge stage-0">Stage 0</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div></td>
+                        <td><span class="term-badge">Academic Year</span></td>
+                        <td><span class="action-owner owner-you">You</span></td>
+                    </tr>
+                    <tr data-cte="no" data-stage="0" data-term="spring" data-status="not-started">
+                        <td class="course-id">HIS-111</td>
+                        <td>World Civilizations I</td>
+                        <td>Arts & Humanities</td>
+                        <td><span class="cte-badge non-cte">Non-CTE</span></td>
+                        <td class="instructor-name">Dr. Pash</td>
+                        <td><span class="stage-badge stage-0">Stage 0</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div></td>
+                        <td><span class="term-badge term-spring">Spring 2026</span></td>
+                        <td><span class="action-owner owner-you">You</span></td>
+                    </tr>
+                    <tr data-cte="no" data-stage="0" data-term="fall" data-status="not-started">
+                        <td class="course-id">HIS-112</td>
+                        <td>World Civilizations II</td>
+                        <td>Arts & Humanities</td>
+                        <td><span class="cte-badge non-cte">Non-CTE</span></td>
+                        <td class="instructor-name">TBD</td>
+                        <td><span class="stage-badge stage-0">Stage 0</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div></td>
+                        <td><span class="term-badge term-fall">Fall 2025</span></td>
+                        <td><span class="action-owner owner-tbd">TBD</span></td>
+                    </tr>
+                    <tr data-cte="no" data-stage="0" data-term="spring" data-status="not-started">
+                        <td class="course-id">HIS-132</td>
+                        <td>U.S. History II</td>
+                        <td>Arts & Humanities</td>
+                        <td><span class="cte-badge non-cte">Non-CTE</span></td>
+                        <td class="instructor-name">Jessie Kiker</td>
+                        <td><span class="stage-badge stage-0">Stage 0</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div></td>
+                        <td><span class="term-badge term-spring">Spring 2026</span></td>
+                        <td><span class="action-owner owner-you">You</span></td>
+                    </tr>
+                    <tr data-cte="yes" data-stage="0" data-term="academic" data-status="not-started">
+                        <td class="course-id">HOR-134</td>
+                        <td>Horticulture</td>
+                        <td>Engineering & Applied Tech</td>
+                        <td><span class="cte-badge">CTE</span></td>
+                        <td class="instructor-name">Dr. Pusztay</td>
+                        <td><span class="stage-badge stage-0">Stage 0</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div></td>
+                        <td><span class="term-badge">Academic Year</span></td>
+                        <td><span class="action-owner owner-you">You</span></td>
+                    </tr>
+                    <tr data-cte="yes" data-stage="0" data-term="academic" data-status="not-started">
+                        <td class="course-id">HOR-166</td>
+                        <td>Horticulture II</td>
+                        <td>Engineering & Applied Tech</td>
+                        <td><span class="cte-badge">CTE</span></td>
+                        <td class="instructor-name">Dr. Pusztay</td>
+                        <td><span class="stage-badge stage-0">Stage 0</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div></td>
+                        <td><span class="term-badge">Academic Year</span></td>
+                        <td><span class="action-owner owner-you">You</span></td>
+                    </tr>
+                    <tr data-cte="no" data-stage="1" data-term="fall" data-status="planning">
+                        <td class="course-id">HUM-110</td>
+                        <td>Technology and Society</td>
+                        <td>Arts & Humanities</td>
+                        <td><span class="cte-badge non-cte">Non-CTE</span></td>
+                        <td class="instructor-name">Dr. Thrasher</td>
+                        <td><span class="stage-badge stage-1">Stage 1</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 15%"></div></div></td>
+                        <td><span class="term-badge term-fall">Fall 2025</span></td>
+                        <td><span class="action-owner owner-shared">Shared</span></td>
+                    </tr>
+                    <tr data-cte="no" data-stage="0" data-term="fall" data-status="not-started">
+                        <td class="course-id">HUM-115</td>
+                        <td>Critical Thinking</td>
+                        <td>Arts & Humanities</td>
+                        <td><span class="cte-badge non-cte">Non-CTE</span></td>
+                        <td class="instructor-name">Julian Beltran</td>
+                        <td><span class="stage-badge stage-0">Stage 0</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div></td>
+                        <td><span class="term-badge term-fall">Fall 2025</span></td>
+                        <td><span class="action-owner owner-you">You</span></td>
+                    </tr>
+                    <tr data-cte="no" data-stage="0" data-term="fall" data-status="not-started">
+                        <td class="course-id">HUM-130</td>
+                        <td>Mythology</td>
+                        <td>Arts & Humanities</td>
+                        <td><span class="cte-badge non-cte">Non-CTE</span></td>
+                        <td class="instructor-name">Dr. Pash</td>
+                        <td><span class="stage-badge stage-0">Stage 0</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div></td>
+                        <td><span class="term-badge term-fall">Fall 2025</span></td>
+                        <td><span class="action-owner owner-you">You</span></td>
+                    </tr>
+                    <tr data-cte="yes" data-stage="4" data-term="fall" data-status="review">
+                        <td class="course-id">MKT-120</td>
+                        <td>Principles of Marketing</td>
+                        <td>Business</td>
+                        <td><span class="cte-badge">CTE</span></td>
+                        <td class="instructor-name">Dr. Fair</td>
+                        <td><span class="stage-badge stage-4">Stage 4 - Review</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 70%"></div></div></td>
+                        <td><span class="term-badge term-fall">Fall 2025</span></td>
+                        <td><span class="action-owner owner-instructor">Reviewer</span></td>
+                    </tr>
+                    <tr data-cte="no" data-stage="0" data-term="academic" data-status="not-started">
+                        <td class="course-id">MUS-110</td>
+                        <td>Music Appreciation</td>
+                        <td>Arts & Humanities</td>
+                        <td><span class="cte-badge non-cte">Non-CTE</span></td>
+                        <td class="instructor-name">Alec Powers</td>
+                        <td><span class="stage-badge stage-0">Stage 0</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div></td>
+                        <td><span class="term-badge">Academic Year</span></td>
+                        <td><span class="action-owner owner-you">You</span></td>
+                    </tr>
+                    <tr data-cte="no" data-stage="0" data-term="academic" data-status="not-started">
+                        <td class="course-id">PHI-240</td>
+                        <td>Introduction to Ethics</td>
+                        <td>Arts & Humanities</td>
+                        <td><span class="cte-badge non-cte">Non-CTE</span></td>
+                        <td class="instructor-name">Julian Beltran</td>
+                        <td><span class="stage-badge stage-0">Stage 0</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div></td>
+                        <td><span class="term-badge">Academic Year</span></td>
+                        <td><span class="action-owner owner-you">You</span></td>
+                    </tr>
+                    <tr data-cte="no" data-stage="0" data-term="fall" data-status="not-started">
+                        <td class="course-id">POL-120</td>
+                        <td>American Government</td>
+                        <td>Arts & Humanities</td>
+                        <td><span class="cte-badge non-cte">Non-CTE</span></td>
+                        <td class="instructor-name">Dr. Thrasher</td>
+                        <td><span class="stage-badge stage-0">Stage 0</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div></td>
+                        <td><span class="term-badge term-fall">Fall 2025</span></td>
+                        <td><span class="action-owner owner-you">You</span></td>
+                    </tr>
+                    <tr data-cte="no" data-stage="0" data-term="academic" data-status="not-started">
+                        <td class="course-id">PSY-150</td>
+                        <td>General Psychology</td>
+                        <td>Arts & Humanities</td>
+                        <td><span class="cte-badge non-cte">Non-CTE</span></td>
+                        <td class="instructor-name">Vernette Gilbreath</td>
+                        <td><span class="stage-badge stage-0">Stage 0</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div></td>
+                        <td><span class="term-badge">Academic Year</span></td>
+                        <td><span class="action-owner owner-you">You</span></td>
+                    </tr>
+                    <tr data-cte="no" data-stage="7" data-term="fall" data-status="complete">
+                        <td class="course-id">REL-110</td>
+                        <td>World Religions</td>
+                        <td>Arts & Humanities</td>
+                        <td><span class="cte-badge non-cte">Non-CTE</span></td>
+                        <td class="instructor-name">Dr. Eddy</td>
+                        <td><span class="stage-badge stage-7">Stage 7 - Complete</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 100%"></div></div></td>
+                        <td><span class="term-badge term-fall">Fall 2025</span></td>
+                        <td><span class="action-owner owner-none">Complete</span></td>
+                    </tr>
+                    <tr data-cte="no" data-stage="1" data-term="fall" data-status="planning">
+                        <td class="course-id">SOC-210</td>
+                        <td>Introduction to Sociology</td>
+                        <td>Arts & Humanities</td>
+                        <td><span class="cte-badge non-cte">Non-CTE</span></td>
+                        <td class="instructor-name">Dr. McNair-Williams</td>
+                        <td><span class="stage-badge stage-1">Stage 1</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 15%"></div></div></td>
+                        <td><span class="term-badge term-fall">Fall 2025</span></td>
+                        <td><span class="action-owner owner-shared">Shared</span></td>
+                    </tr>
+                    <tr data-cte="no" data-stage="1" data-term="fall" data-status="planning">
+                        <td class="course-id">SOC-213</td>
+                        <td>Sociology of the Family</td>
+                        <td>Arts & Humanities</td>
+                        <td><span class="cte-badge non-cte">Non-CTE</span></td>
+                        <td class="instructor-name">Dr. McNair-Williams</td>
+                        <td><span class="stage-badge stage-1">Stage 1</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 15%"></div></div></td>
+                        <td><span class="term-badge term-fall">Fall 2025</span></td>
+                        <td><span class="action-owner owner-shared">Shared</span></td>
+                    </tr>
+                    <tr data-cte="no" data-stage="r" data-term="recert" data-status="recert">
+                        <td class="course-id">SOC-220</td>
+                        <td>Social Problems</td>
+                        <td>Arts & Humanities</td>
+                        <td><span class="cte-badge non-cte">Non-CTE</span></td>
+                        <td class="instructor-name">Dr. McNair-Williams</td>
+                        <td><span class="stage-badge stage-r">Recertification</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div></td>
+                        <td><span class="term-badge">Recertify</span></td>
+                        <td><span class="action-owner owner-shared">Shared</span></td>
+                    </tr>
+                    <tr data-cte="no" data-stage="0" data-term="fall" data-status="not-started">
+                        <td class="course-id">SPA-111</td>
+                        <td>Elementary Spanish I</td>
+                        <td>Arts & Humanities</td>
+                        <td><span class="cte-badge non-cte">Non-CTE</span></td>
+                        <td class="instructor-name">Adams</td>
+                        <td><span class="stage-badge stage-0">Stage 0</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div></td>
+                        <td><span class="term-badge term-fall">Fall 2025</span></td>
+                        <td><span class="action-owner owner-you">You</span></td>
+                    </tr>
+                    <tr data-cte="yes" data-stage="0" data-term="academic" data-status="not-started">
+                        <td class="course-id">TRF-110</td>
+                        <td>Introduction to Turfgrass</td>
+                        <td>Engineering & Applied Tech</td>
+                        <td><span class="cte-badge">CTE</span></td>
+                        <td class="instructor-name">Dr. Pusztay</td>
+                        <td><span class="stage-badge stage-0">Stage 0</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div></td>
+                        <td><span class="term-badge">Academic Year</span></td>
+                        <td><span class="action-owner owner-you">You</span></td>
+                    </tr>
+                    <tr data-cte="yes" data-stage="0" data-term="academic" data-status="not-started">
+                        <td class="course-id">VEN-135</td>
+                        <td>Viticulture I</td>
+                        <td>Engineering & Applied Tech</td>
+                        <td><span class="cte-badge">CTE</span></td>
+                        <td class="instructor-name">Dr. Pusztay</td>
+                        <td><span class="stage-badge stage-0">Stage 0</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div></td>
+                        <td><span class="term-badge">Academic Year</span></td>
+                        <td><span class="action-owner owner-you">You</span></td>
+                    </tr>
+                    <tr data-cte="yes" data-stage="0" data-term="academic" data-status="not-started">
+                        <td class="course-id">VEN-138</td>
+                        <td>Viticulture II</td>
+                        <td>Engineering & Applied Tech</td>
+                        <td><span class="cte-badge">CTE</span></td>
+                        <td class="instructor-name">Dr. Pusztay</td>
+                        <td><span class="stage-badge stage-0">Stage 0</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div></td>
+                        <td><span class="term-badge">Academic Year</span></td>
+                        <td><span class="action-owner owner-you">You</span></td>
+                    </tr>
+                    <tr data-cte="yes" data-stage="0" data-term="academic" data-status="not-started">
+                        <td class="course-id">VEN-287</td>
+                        <td>Enology III</td>
+                        <td>Engineering & Applied Tech</td>
+                        <td><span class="cte-badge">CTE</span></td>
+                        <td class="instructor-name">Dr. Pusztay</td>
+                        <td><span class="stage-badge stage-0">Stage 0</span></td>
+                        <td><div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div></td>
+                        <td><span class="term-badge">Academic Year</span></td>
+                        <td><span class="action-owner owner-you">You</span></td>
+                    </tr>
